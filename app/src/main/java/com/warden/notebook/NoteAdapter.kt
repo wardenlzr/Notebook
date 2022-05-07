@@ -11,8 +11,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.makeText
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
-import com.tencent.mmkv.MMKV
+import kotlinx.android.synthetic.main.dialog_edit.view.*
 
 class NoteAdapter(private var list: MutableList<NoteBean>) :
     RecyclerView.Adapter<NoteAdapter.Holder>() {
@@ -32,10 +33,11 @@ class NoteAdapter(private var list: MutableList<NoteBean>) :
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
+        val context = holder.itemView.context
         val noteBean = list[position]
         holder.content?.text = noteBean.content
-        val formatDateTime = formatDateTime(holder.itemView.context, noteBean.editTime, FORMAT_SHOW_DATE) +
-            formatDateTime(holder.itemView.context, noteBean.editTime, FORMAT_SHOW_TIME)
+        val flag = FORMAT_SHOW_DATE or FORMAT_SHOW_WEEKDAY or FORMAT_SHOW_TIME
+        val formatDateTime = formatDateTime(context, noteBean.editTime, flag)
         holder.time?.text = formatDateTime
         holder.itemView.setOnClickListener {
             Log.e("position", "position.$position")
@@ -46,16 +48,45 @@ class NoteAdapter(private var list: MutableList<NoteBean>) :
             makeText(it.context, "已复制到粘贴板", Toast.LENGTH_SHORT).show()
         }
         holder.itemView.setOnLongClickListener {
-            Log.e("position", "position.$position")
-            val layoutPosition = holder.layoutPosition
-            Log.e("position", "layoutPosition.$layoutPosition")
-
-            list.removeAt(layoutPosition)
-            MMKVUtil.setNotes(list)
-            notifyItemRemoved(layoutPosition)
-            makeText(it.context, "已删除", Toast.LENGTH_SHORT).show()
+            val editView = LayoutInflater.from(context).inflate(R.layout.dialog_edit, null, false)
+            editView.et_input.setText(noteBean.content)
+            AlertDialog.Builder(context)
+                .setTitle("编辑")
+                .setView(editView)
+                .setPositiveButton("保存") { _, _ ->
+                    noteBean.editTime = System.currentTimeMillis()
+                    noteBean.content = editView.et_input.text.toString()
+                    list[position] = noteBean
+                    MMKVUtil.setNotes(list)
+                    notifyDataSetChanged()
+                }
+                .setNeutralButton("删除"){ _, _ ->
+                    removeDialog(holder.layoutPosition, context)
+                }
+                .setNegativeButton("取消", null)
+                .create()
+                .show()
             return@setOnLongClickListener false
         }
+    }
+
+    private fun removeDialog(position: Int, context: Context) {
+        AlertDialog.Builder(context)
+            .setTitle("确定删除")
+            .setPositiveButton("确定") { _, _ ->
+                remove(position, context);
+            }
+            .setNeutralButton("取消", null)
+            .create()
+            .show()
+    }
+
+    private fun remove(position: Int, context: Context) {
+        Log.e("position", "layoutPosition.$position")
+        list.removeAt(position)
+        MMKVUtil.setNotes(list)
+        notifyItemRemoved(position)
+        makeText(context, "已删除", Toast.LENGTH_SHORT).show()
     }
 
     override fun getItemCount(): Int = list.size

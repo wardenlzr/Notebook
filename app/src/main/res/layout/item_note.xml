@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:orientation="vertical"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="8dp">
 
     <TextView
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
+        android:text="去跟人类伟大的灵魂对话"
         android:textColor="#333333"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        android:textSize="14sp"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/time"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
         android:textColor="#c0c0c0"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/content"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        android:gravity="end"
+        android:textSize="11sp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
